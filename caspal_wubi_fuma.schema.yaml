@@ -1,1 +1,9 @@
-data/rime-pyjj-wubi/caspal_wubi_fuma.schema.yaml
+# Rime schema
+# encoding: utf-8
+
+schema:
+  schema_id: caspal_wubi_fuma
+  name: 工具方案-勿用
+translator:
+  dictionary: caspal_wubi_fuma
+  enable_user_dict: false
