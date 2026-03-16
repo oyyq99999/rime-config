@@ -1,0 +1,3 @@
+[submodule "data/rime-pyjj-wubi"]
+	path = data/rime-pyjj-wubi
+	url = git@github.com:oyyq99999/rime-pyjj-wubi.git

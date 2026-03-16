@@ -1,0 +1,6 @@
+# encoding: utf-8
+__patch:
+# Rx: emoji:customize:schema=caspal_pyjj_wubi {
+  - patch/+:
+      __include: emoji_suggestion:/patch
+# }

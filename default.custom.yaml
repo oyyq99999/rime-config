@@ -1,0 +1,23 @@
+patch:
+  ascii_composer/switch_key:
+    Caps_Lock: noop
+    Shift_L: commit_code
+    Shift_R: noop
+    Control_L: noop
+    Control_R: noop
+  schema_list:
+    - schema: double_pinyin_pyjj
+    - schema: caspal_pyjj_wubi
+    - schema: caspal_wubi86
+  key_binder:
+    bindings:
+      - { when: composing, accept: ISO_Left_Tab, send: Page_Up }
+      - { when: composing, accept: Shift+Tab, send: Page_Up }
+      - { when: composing, accept: Tab, send: Page_Down }
+      - { when: has_menu, accept: minus, send: Page_Up }
+      - { when: has_menu, accept: equal, send: Page_Down }
+      - { when: always, accept: Control+f,toggle: simplification }
+  punctuator/half_shape:
+    __include: punctuation:/half_shape
+    "/" : 、
+    "\\" : 、

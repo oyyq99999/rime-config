@@ -1,0 +1,7 @@
+__patch:
+# Rx: emoji:customize:schema=double_pinyin_pyjj {
+  - patch/+:
+      __include: emoji_suggestion:/patch
+# }
+patch:
+  translator/dictionary: luna_pinyin.extended
