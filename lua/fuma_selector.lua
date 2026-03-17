@@ -5,14 +5,24 @@ local kAccepted = 1
 local kNoop = 2
 
 local function select_candidate(ctx, candidate, idx)
-    if candidate ~= nil and candidate.comment and string.match(candidate.comment, '^;%w%w?$') ~= nil then
-        local fuma_len = string.len(candidate.comment) - 1
+    if candidate == nil then return kNoop end
+
+    -- 【关键修复】：获取候选词的“真身”
+    -- 这样即使是被 emoji 滤镜包装过的词，也能拿到原始的 fuma 注释
+    local genuine = candidate:get_genuine()
+
+    if genuine.comment ~= nil and string.match(genuine.comment, '^;%w%w?$') ~= nil then
+        local fuma_len = string.len(genuine.comment) - 1
+
         if idx == nil then
             ctx:confirm_current_selection()
         else
             ctx:select(idx)
         end
+
+        -- 此时即使上屏的是 😄，剩下的辅码输入也会被正确清理
         ctx:pop_input(fuma_len)
+
         if ctx.composition:has_finished_composition() then
             ctx:commit()
         end
@@ -37,13 +47,13 @@ function fuma_selector.func(key_event, env)
     if not ctx:has_menu() or not ctx:is_composing() then
         return kNoop
     end
-    
+
     local key_pressed = key_event:repr()
     if key_pressed == 'space' then
         local candidate = ctx:get_selected_candidate()
         if select_candidate(ctx, candidate, nil) == kAccepted then return kAccepted end
     end
-    
+
     if key_pressed >= '1' and key_pressed <= tostring(env.page_size) then
         local composition = ctx.composition
         local highlighted_idx = composition:back().selected_index
