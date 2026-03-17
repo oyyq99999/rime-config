@@ -8,46 +8,46 @@ local function contains(table, val)
 end
 
 local function compare(c1, c2, odd)
-    local l1 = utf8.len(c1.text)
-    local l2 = utf8.len(c2.text)
+    -- local l1 = utf8.len(c1.text)
+    -- local l2 = utf8.len(c2.text)
 
     -- 通过判断 comment 是否带有 ';' 来识别辅码词条，而不是判断 type
     local is_fuma1 = (c1.comment and string.match(c1.comment, '^;%w%w?$')) and true or false
     local is_fuma2 = (c2.comment and string.match(c2.comment, '^;%w%w?$')) and true or false
 
-    local type_order = {'sentence', 'user_phrase', 'phrase', 'completion'}
-    local t1 = c1.type
-    local t2 = c2.type
+    -- local type_order = {'sentence', 'user_phrase', 'phrase', 'completion'}
+    -- local t1 = c1.type
+    -- local t2 = c2.type
     local q1 = c1.quality
     local q2 = c2.quality
-    local o1 = nil
-    local o2 = nil
+    -- local o1 = nil
+    -- local o2 = nil
 
-    for i = 1, #type_order do
-        if t1 == type_order[i] then o1 = i end
-        if t2 == type_order[i] then o2 = i end
-    end
+    -- for i = 1, #type_order do
+    --     if t1 == type_order[i] then o1 = i end
+    --     if t2 == type_order[i] then o2 = i end
+    -- end
 
     if odd == 1 then
         if is_fuma1 and not is_fuma2 then return true end
         if is_fuma2 and not is_fuma1 then return false end
-        if is_fuma1 and is_fuma2 then
-            if l1 ~= l2 then return l1 > l2 end
-            return q1 > q2
-        end
+        -- if is_fuma1 and is_fuma2 then
+            -- if l1 ~= l2 then return l1 > l2 end
+            -- return q1 > q2
+        -- end
     end
 
-    if t1 == 'completion' then return false end
-    if t2 == 'completion' then return true end
-    if l1 ~= l2 then return l1 > l2 end
+    -- if t1 == 'completion' then return false end
+    -- if t2 == 'completion' then return true end
+    -- if l1 ~= l2 then return l1 > l2 end
 
-    if o1 ~= nil and o2 ~= nil then
-        if o1 ~= o2 then return o1 < o2 end
-        return q1 > q2
-    end
+    -- if o1 ~= nil and o2 ~= nil then
+    --     if o1 ~= o2 then return o1 < o2 end
+    --     return q1 > q2
+    -- end
 
-    if o1 == nil then return false end
-    if o2 == nil then return true end
+    -- if o1 == nil then return false end
+    -- if o2 == nil then return true end
     return q1 > q2
 end
 
