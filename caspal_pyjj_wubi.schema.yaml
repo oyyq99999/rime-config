@@ -97,8 +97,9 @@ fuma:
 translator:
   # enable_completion: true
   # db_class: userdb
-  # enable_user_dict: true
-  dictionary: caspal_pinyin_unicode15
+  enable_user_dict: true
+  user_dict: caspal_pinyin_unicode
+  dictionary: caspal_pinyin_unicode17
   preedit_format:
     - xform/([aoe])(\w)/0$2/
     - xform/([bpmnljqxy])l/$1IN/

@@ -10,7 +10,7 @@ end
 local function compare(c1, c2, odd)
     local l1 = utf8.len(c1.text)
     local l2 = utf8.len(c2.text)
-    
+
     -- 通过判断 comment 是否带有 ';' 来识别辅码词条，而不是判断 type
     local is_fuma1 = (c1.comment and string.match(c1.comment, '^;%w%w?$')) and true or false
     local is_fuma2 = (c2.comment and string.match(c2.comment, '^;%w%w?$')) and true or false
@@ -22,7 +22,7 @@ local function compare(c1, c2, odd)
     local q2 = c2.quality
     local o1 = nil
     local o2 = nil
-    
+
     for i = 1, #type_order do
         if t1 == type_order[i] then o1 = i end
         if t2 == type_order[i] then o2 = i end
@@ -36,7 +36,7 @@ local function compare(c1, c2, odd)
             return q1 > q2
         end
     end
-    
+
     if t1 == 'completion' then return false end
     if t2 == 'completion' then return true end
     if l1 ~= l2 then return l1 > l2 end
@@ -45,7 +45,7 @@ local function compare(c1, c2, odd)
         if o1 ~= o2 then return o1 < o2 end
         return q1 > q2
     end
-    
+
     if o1 == nil then return false end
     if o2 == nil then return true end
     return q1 > q2
@@ -68,21 +68,21 @@ function fuma_translator.func(input, seg, env)
     local texts = {}
     local candidates = {}
     local result = nil
-    
+
     if (len >= 3) then
         local p = string.sub(input, 1, len - 2 + odd)
         local w = string.sub(input, len - 1 + odd, len)
-        
+
         result = env.pinyin:query(p, seg)
         local fuma = env.wubi:query(w, seg)
         local fuma_candidates = {}
-        
+
         if (fuma ~= nil) then
             for f in fuma:iter() do
                 fuma_candidates[#fuma_candidates + 1] = f.text
             end
         end
-        
+
         if result ~= nil then
             for r in result:iter() do
                 local t = r.text
@@ -100,7 +100,7 @@ function fuma_translator.func(input, seg, env)
             end
         end
     end
-    
+
     result = env.pinyin:query(input, seg)
     if (result ~= nil) then
         for r in result:iter() do
@@ -111,9 +111,9 @@ function fuma_translator.func(input, seg, env)
             end
         end
     end
-    
+
     table.sort(candidates, function(c1, c2) return compare(c1, c2, odd) end)
-    
+
     for i = 1, #candidates do
         yield(candidates[i])
     end
