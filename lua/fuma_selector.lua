@@ -1,12 +1,11 @@
 local fuma_selector = {}
-local config = nil
-local page_size = nil
+
 local kRejected = 0
 local kAccepted = 1
 local kNoop = 2
 
 local function select_candidate(ctx, candidate, idx)
-    if candidate ~= nil and string.match(candidate.comment, '^;%w%w?$') ~= nil then
+    if candidate ~= nil and candidate.comment and string.match(candidate.comment, '^;%w%w?$') ~= nil then
         local fuma_len = string.len(candidate.comment) - 1
         if idx == nil then
             ctx:confirm_current_selection()
@@ -23,8 +22,8 @@ local function select_candidate(ctx, candidate, idx)
 end
 
 function fuma_selector.init(env)
-    config = env.engine.schema.config
-    page_size = (config:get_string('menu/page_size') + 0) // 1 % 10
+    env.config = env.engine.schema.config
+    env.page_size = (env.config:get_string('menu/page_size') + 0) // 1 % 10
 end
 
 function fuma_selector.fini(env)
@@ -38,16 +37,17 @@ function fuma_selector.func(key_event, env)
     if not ctx:has_menu() or not ctx:is_composing() then
         return kNoop
     end
-    local segment = ctx.composition:back()
+    
     local key_pressed = key_event:repr()
     if key_pressed == 'space' then
         local candidate = ctx:get_selected_candidate()
         if select_candidate(ctx, candidate, nil) == kAccepted then return kAccepted end
     end
-    if key_pressed >= '1' and key_pressed <= tostring(page_size) then
+    
+    if key_pressed >= '1' and key_pressed <= tostring(env.page_size) then
         local composition = ctx.composition
         local highlighted_idx = composition:back().selected_index
-        local page_start = (highlighted_idx // page_size) * page_size
+        local page_start = (highlighted_idx // env.page_size) * env.page_size
         local selected_idx = page_start + (key_pressed - 1)
         local candidate = composition:back():get_candidate_at(selected_idx)
         if select_candidate(ctx, candidate, selected_idx) == kAccepted then return kAccepted end

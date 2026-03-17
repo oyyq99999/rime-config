@@ -92,12 +92,12 @@ speller:
 
 fuma:
   dictionary: caspal_wubi_fuma
+  enable_user_dict: false
 
 translator:
-  # enable_completion: false
-  db_class: tabledb
-  enable_user_dict: true
-  user_dict: caspal_pinyin_user_dict
+  # enable_completion: true
+  # db_class: userdb
+  # enable_user_dict: true
   dictionary: caspal_pinyin_unicode15
   preedit_format:
     - xform/([aoe])(\w)/0$2/
