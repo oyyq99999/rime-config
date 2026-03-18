@@ -31,9 +31,14 @@ local function compare(c1, c2, odd, expected_len)
     if odd then
         if is_fuma1 and not is_fuma2 then return true end
         if is_fuma2 and not is_fuma1 then return false end
-    else
+    elseif c1.text == c2.text then
         if is_fuma2 and not is_fuma1 then return true end
         if is_fuma1 and not is_fuma2 then return false end
+    end
+
+    if odd then
+        if l1 == expected_len and t1 ~= 'sentence' and l2 ~= expected_len then return true end
+        if l2 == expected_len and t2 ~= 'sentence' and l1 ~= expected_len then return false end
     end
 
     if l1 == expected_len and l2 ~= expected_len then return true end
@@ -124,7 +129,8 @@ function fuma_translator.func(input, seg, env)
 
         local i = 1
         while i <= #candidates and #top_list < n do
-            if utf8.len(candidates[i].text) == expected_len then
+            local cand = candidates[i]
+            if utf8.len(cand.text) == expected_len and cand.type ~= 'sentence' then
                 table.insert(top_list, table.remove(candidates, i))
             else -- 删除当前元素后，不需要增加索引，因为下一个元素已经移到当前位置了
                 i = i + 1
