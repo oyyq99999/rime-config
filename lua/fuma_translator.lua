@@ -7,7 +7,7 @@ local function contains(table, val)
     return false
 end
 
-local function compare(c1, c2, odd)
+local function compare(c1, c2, odd, expected_len)
     local l1 = utf8.len(c1.text)
     local l2 = utf8.len(c2.text)
 
@@ -28,7 +28,7 @@ local function compare(c1, c2, odd)
         if t2 == type_order[i] then o2 = i end
     end
 
-    if odd == 1 then
+    if odd then
         if is_fuma1 and not is_fuma2 then return true end
         if is_fuma2 and not is_fuma1 then return false end
     else
@@ -36,9 +36,12 @@ local function compare(c1, c2, odd)
         if is_fuma1 and not is_fuma2 then return false end
     end
 
+    if l1 == expected_len and l2 ~= expected_len then return true end
+    if l2 == expected_len and l1 ~= expected_len then return false end
+
     -- if t1 == 'completion' then return false end
     -- if t2 == 'completion' then return true end
-    -- if l1 ~= l2 then return l1 > l2 end
+    if l1 ~= l2 then return l1 > l2 end
 
     if o1 ~= nil and o2 ~= nil then
         if o1 ~= o2 then return o1 < o2 end
@@ -111,7 +114,28 @@ function fuma_translator.func(input, seg, env)
         end
     end
 
-    table.sort(candidates, function(c1, c2) return compare(c1, c2, odd) end)
+    local expected_len = (len + 1) // 2
+
+    table.sort(candidates, function(c1, c2) return compare(c1, c2, odd == 1, expected_len) end)
+
+    if odd == 1 then
+        local n = 1 -- 你可以根据需要修改这个数字，比如 n = 3
+        local top_list = {}
+
+        local i = 1
+        while i <= #candidates and #top_list < n do
+            if utf8.len(candidates[i].text) == expected_len then
+                table.insert(top_list, table.remove(candidates, i))
+            else -- 删除当前元素后，不需要增加索引，因为下一个元素已经移到当前位置了
+                i = i + 1
+            end
+        end
+
+        if #top_list > 0 then
+            table.move(candidates, 1, #candidates, #top_list + 1, top_list)
+            candidates = top_list
+        end
+    end
 
     for i = 1, #candidates do
         yield(candidates[i])
