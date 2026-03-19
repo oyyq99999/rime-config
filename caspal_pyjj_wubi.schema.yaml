@@ -90,6 +90,7 @@ speller:
     - derive/^;(\w)(\w);$/$1/
     - xform/^;(\w+);$/$1/
 
+# used in lua script
 fuma:
   dictionary: caspal_wubi_fuma
   enable_user_dict: false
@@ -97,6 +98,7 @@ fuma:
 translator:
   # enable_completion: true
   # db_class: userdb
+  prism: caspal_pyjj_wubi
   enable_user_dict: true
   user_dict: caspal_pinyin_unicode
   dictionary: caspal_pinyin_unicode17

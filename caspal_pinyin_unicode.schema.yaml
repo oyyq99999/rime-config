@@ -1,0 +1,9 @@
+# Rime schema
+# encoding: utf-8
+
+schema:
+  schema_id: caspal_pinyin_unicode
+  name: 工具方案-勿用
+translator:
+  dictionary: caspal_pinyin_unicode17
+  enable_user_dict: false

@@ -12,7 +12,7 @@ schema:
     五笔字型86版
     码表源自 https://github.com/LS-Hower/rime-wubi86-ext
   dependencies:
-    - pinyin_simp
+    - caspal_pinyin_unicode
 
 switches:
   - name: ascii_mode
@@ -61,7 +61,7 @@ translator:
     - "^z.*$"
 
 reverse_lookup:
-  dictionary: pinyin_simp
+  dictionary: caspal_pinyin_unicode17
   prefix: "z"
   suffix: "'"
   tips: 〔拼音〕
