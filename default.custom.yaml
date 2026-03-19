@@ -17,6 +17,7 @@ patch:
       - { when: has_menu, accept: minus, send: Page_Up }
       - { when: has_menu, accept: equal, send: Page_Down }
       - { when: always, accept: Control+f,toggle: simplification }
+      - { when: always, accept: Control+e,toggle: emoji_suggestion }
       - { when: composing, accept: Alt+BackSpace,send: Control+BackSpace } # 删除一个字
   punctuator/half_shape:
     __include: punctuation:/half_shape
