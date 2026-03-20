@@ -40,78 +40,88 @@ local function compare(c1, c2, odd, expected_len)
     return q1 > q2
 end
 
-local function fuma_filter(translation, env)
-    local input = env.engine.context.input
-    local seg = env.engine.context.composition:back()
-    local len = string.len(input)
-    local odd = len & 1
+local fuma_filter = {
+    init = function(env)
+        env.wubi = Component.Translator(env.engine, "", "table_translator@fuma")
+    end,
+    func = function(translation, env)
+        local input = env.engine.context.input
+        local input_len = utf8.len(input)
 
-    local wubi = Component.Translator(env.engine, "", "table_translator@fuma")
+        -- 有时候会需要选了一部分之后再加辅码筛选，所以得用seg来计算
+        local seg = env.engine.context.composition:back()
+        local seg_len = seg.length
+        local odd = seg_len & 1
 
-    local fuma_candidates = {}
+        local fuma_candidates = {}
 
-    local w = string.sub(input, len - 1 + odd, len)
-    if (len >= 3) then
-        local fuma = wubi:query(w, seg)
-        if fuma ~= nil then
-            for f in fuma:iter() do
-                fuma_candidates[#fuma_candidates + 1] = f.text
-            end
-        end
-    end
-
-    local candidates = {}
-
-    if translation ~= nil then
-        -- 双辅码只针对单字
-        local max_len_p = 1
-        if odd == 1 then
-            max_len_p = (len - 2 + odd) // 2
-        end
-        for cand in translation:iter() do
-            local t = cand.text
-            if utf8.len(t) <= max_len_p then
-                for fi = 1, #fuma_candidates do
-                    local ft = fuma_candidates[fi]
-                    if string.find(t, ft) ~= nil then
-                        cand.comment = ';' .. w
-                        cand.preedit = cand.preedit .. ';' .. w .. ' '
-                        break
-                    end
+        -- 只能从input获取输入码，不管是seg还是input，都是按照odd取最后的1或2位，在seg_len >= 3的时候这个没区别
+        local w = string.sub(input, input_len - 1 + odd, input_len)
+        if (seg_len >= 3) then
+            local fuma = env.wubi:query(w, seg)
+            if fuma ~= nil then
+                for f in fuma:iter() do
+                    fuma_candidates[#fuma_candidates + 1] = f.text
                 end
             end
-            candidates[#candidates + 1] = cand
         end
-    end
 
-    local expected_len = (len + 1) // 2
+        local candidates = {}
 
-    table.sort(candidates, function(c1, c2) return compare(c1, c2, odd == 1, expected_len) end)
-
-    -- 单辅码时，因为辅码优先，会导致没打完的词被排在后面，所以提几条符合预期长度的词到前面来
-    if odd == 1 then
-        local n = 1 -- 可以根据需要修改这个数字，比如 n = 3
-        local top_list = {}
-
-        local i = 1
-        while i <= #candidates and #top_list < n do
-            local cand = candidates[i]
-            if utf8.len(cand.text) == expected_len and cand.type == 'user_phrase' then
-                table.insert(top_list, table.remove(candidates, i))
-            else -- 删除当前元素后，不需要增加索引，因为下一个元素已经移到当前位置了
-                i = i + 1
+        if translation ~= nil then
+            -- 双辅码只针对单字
+            local max_len_p = 1
+            if odd == 1 then
+                max_len_p = (seg_len - 2 + odd) // 2
+            end
+            for cand in translation:iter() do
+                local t = cand.text
+                if utf8.len(t) <= max_len_p then
+                    for fi = 1, #fuma_candidates do
+                        local ft = fuma_candidates[fi]
+                        if string.find(t, ft) ~= nil then
+                            cand.comment = ';' .. w
+                            cand.preedit = cand.preedit .. ';' .. w .. ' '
+                            break
+                        end
+                    end
+                end
+                candidates[#candidates + 1] = cand
             end
         end
 
-        if #top_list > 0 then
-            table.move(candidates, 1, #candidates, #top_list + 1, top_list)
-            candidates = top_list
-        end
-    end
+        local expected_len = (seg_len + 1) // 2
 
-    for i = 1, #candidates do
-        yield(candidates[i])
+        table.sort(candidates, function(c1, c2) return compare(c1, c2, odd == 1, expected_len) end)
+
+        -- 单辅码时，因为辅码优先，会导致没打完的词被排在后面，所以提几条符合预期长度的词到前面来
+        if odd == 1 then
+            local n = 1 -- 可以根据需要修改这个数字，比如 n = 3
+            local top_list = {}
+
+            local i = 1
+            while i <= #candidates and #top_list < n do
+                local cand = candidates[i]
+                if utf8.len(cand.text) == expected_len and cand.type == 'user_phrase' then
+                    table.insert(top_list, table.remove(candidates, i))
+                else -- 删除当前元素后，不需要增加索引，因为下一个元素已经移到当前位置了
+                    i = i + 1
+                end
+            end
+
+            if #top_list > 0 then
+                table.move(candidates, 1, #candidates, #top_list + 1, top_list)
+                candidates = top_list
+            end
+        end
+
+        for i = 1, #candidates do
+            yield(candidates[i])
+        end
+    end,
+    finish = function(env)
+        env.wubi = nil
     end
-end
+}
 
 return fuma_filter
