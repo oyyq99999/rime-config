@@ -87,8 +87,6 @@ speller:
     - xform/(.)ou$/$1P/
     - xform/in$/L/
     - xlit/QWRTYUIOPSDFGHMJCKLZXVBN/qwrtyuiopsdfghmjcklzxvbn/
-    - derive/^;(\w)(\w);$/$1/
-    - xform/^;(\w+);$/$1/
 
 # used in lua script
 fuma:
