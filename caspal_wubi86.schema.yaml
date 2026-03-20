@@ -61,7 +61,7 @@ translator:
     - "^z.*$"
 
 reverse_lookup:
-  dictionary: caspal_pinyin_unicode17
+  dictionary: caspal_pinyin_unicode
   prefix: "z"
   suffix: "'"
   tips: 〔拼音〕

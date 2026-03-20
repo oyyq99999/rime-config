@@ -98,10 +98,10 @@ fuma:
 translator:
   # enable_completion: true
   # db_class: userdb
-  prism: caspal_pyjj_wubi
+  prism: caspal_pyjj_wubi_unicode
   enable_user_dict: true
   user_dict: caspal_pinyin_unicode
-  dictionary: caspal_pinyin_unicode17
+  dictionary: caspal_pinyin_unicode
   preedit_format:
     - xform/([aoe])(\w)/0$2/
     - xform/([bpmnljqxy])l/$1IN/
