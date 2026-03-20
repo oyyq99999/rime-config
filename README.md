@@ -7,7 +7,7 @@
 *   **拼音加加双拼方案**：内置经典的拼音加加双拼逻辑（基于 `double_pinyin_pyjj`）。
 *   **五笔 86 辅码筛选**：在拼音输入的同时，支持使用五笔 86 编码作为辅码进行过滤，显著提高重码选择效率。
 *   **超大字符集支持**：支持 Unicode 17 字符集，涵盖了绝大多数罕见字，词库经过优化处理。
-*   **LUA 增强逻辑**：通过自定义 LUA 脚本（`fuma_selector.lua`, `fuma_translator.lua`）实现灵活的辅码翻译与选择。
+*   **LUA 增强逻辑**：通过自定义 LUA 脚本（`fuma_selector.lua`, `fuma_filter.lua`）实现灵活的辅码过滤与选择。
 *   **多方案支持**：
     *   `caspal_pyjj_wubi`: 拼音加加五笔整句（核心主方案）。
     *   `double_pinyin_pyjj`: 拼音加加双拼。

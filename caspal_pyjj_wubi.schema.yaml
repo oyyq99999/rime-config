@@ -44,9 +44,9 @@ engine:
   translators:
     - punct_translator
     - reverse_lookup_translator
-    - lua_translator@*fuma_translator
-    # - script_translator
+    - script_translator
   filters:
+    - lua_filter@*fuma_filter
     - simplifier@s2t
     - uniquifier
 

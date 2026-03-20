@@ -1,12 +1,3 @@
-local fuma_translator = {}
-
-local function contains(table, val)
-    for i = 1, #table do
-        if table[i] == val then return true end
-    end
-    return false
-end
-
 local function compare(c1, c2, odd, expected_len)
     local l1 = utf8.len(c1.text)
     local l2 = utf8.len(c2.text)
@@ -51,64 +42,43 @@ local function compare(c1, c2, odd, expected_len)
     return q1 > q2
 end
 
-function fuma_translator.init(env)
-    env.pinyin = Component.Translator(env.engine, "", "script_translator@translator")
-    env.wubi = Component.Translator(env.engine, "", "table_translator@fuma")
-end
-
-function fuma_translator.fini(env)
-    -- 清理引用（可选）
-    env.pinyin = nil
-    env.wubi = nil
-end
-
-function fuma_translator.func(input, seg, env)
+local function fuma_filter(translation, env)
+    local input = env.engine.context.input
+    local seg = env.engine.context.composition:back()
     local len = string.len(input)
     local odd = len & 1
-    local texts = {}
-    local candidates = {}
-    local result = nil
 
+    local wubi = Component.Translator(env.engine, "", "table_translator@fuma")
+
+    local fuma_candidates = {}
+
+    local w = string.sub(input, len - 1 + odd, len)
     if (len >= 3) then
-        local p = string.sub(input, 1, len - 2 + odd)
-        local w = string.sub(input, len - 1 + odd, len)
-
-        result = env.pinyin:query(p, seg)
-        local fuma = env.wubi:query(w, seg)
-        local fuma_candidates = {}
-
-        if (fuma ~= nil) then
+        local fuma = wubi:query(w, seg)
+        if fuma ~= nil then
             for f in fuma:iter() do
                 fuma_candidates[#fuma_candidates + 1] = f.text
             end
         end
+    end
 
-        if result ~= nil then
-            for r in result:iter() do
-                local t = r.text
+    local candidates = {}
+
+    if translation ~= nil then
+        local max_len_p = (len - 2 + odd) // 2
+        for cand in translation:iter() do
+            local t = cand.text
+            if utf8.len(t) <= max_len_p then
                 for fi = 1, #fuma_candidates do
                     local ft = fuma_candidates[fi]
-                    if string.find(t, ft) ~= nil and not contains(texts, t) then
-                        texts[#texts + 1] = t
-                        -- 绝对不要修改 r.type！保持它原生的 'phrase' 状态，引擎才会记录和删除
-                        r.comment = ';' .. w
-                        r.preedit = r.preedit .. ';' .. w .. ' '
-                        candidates[#candidates + 1] = r
+                    if string.find(t, ft) ~= nil then
+                        cand.comment = ';' .. w
+                        cand.preedit = cand.preedit .. ';' .. w .. ' '
                         break
                     end
                 end
             end
-        end
-    end
-
-    result = env.pinyin:query(input, seg)
-    if (result ~= nil) then
-        for r in result:iter() do
-            local t = r.text
-            if not (contains(texts, t) and odd == 1) then
-                texts[#texts + 1] = t
-                candidates[#candidates + 1] = r
-            end
+            candidates[#candidates + 1] = cand
         end
     end
 
@@ -141,4 +111,4 @@ function fuma_translator.func(input, seg, env)
     end
 end
 
-return fuma_translator
+return fuma_filter
