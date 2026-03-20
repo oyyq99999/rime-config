@@ -19,12 +19,10 @@ local function compare(c1, c2, odd, expected_len)
     local q1 = c1.quality
     local q2 = c2.quality
 
-    if odd then
+    -- 单辅码时辅码优先，双辅码时同等长度辅码优先
+    if odd or l1 == l2 then
         if is_fuma1 and not is_fuma2 then return true end
         if is_fuma2 and not is_fuma1 then return false end
-    elseif c1.text == c2.text then
-        if is_fuma2 and not is_fuma1 then return true end
-        if is_fuma1 and not is_fuma2 then return false end
     end
 
     if l1 == expected_len and l2 ~= expected_len then return true end
@@ -65,7 +63,11 @@ local function fuma_filter(translation, env)
     local candidates = {}
 
     if translation ~= nil then
-        local max_len_p = (len - 2 + odd) // 2
+        -- 双辅码只针对单字
+        local max_len_p = 1
+        if odd == 1 then
+            max_len_p = (len - 2 + odd) // 2
+        end
         for cand in translation:iter() do
             local t = cand.text
             if utf8.len(t) <= max_len_p then
@@ -86,8 +88,9 @@ local function fuma_filter(translation, env)
 
     table.sort(candidates, function(c1, c2) return compare(c1, c2, odd == 1, expected_len) end)
 
+    -- 单辅码时，因为辅码优先，会导致没打完的词被排在后面，所以提几条符合预期长度的词到前面来
     if odd == 1 then
-        local n = 1 -- 你可以根据需要修改这个数字，比如 n = 3
+        local n = 1 -- 可以根据需要修改这个数字，比如 n = 3
         local top_list = {}
 
         local i = 1
