@@ -30,6 +30,7 @@ engine:
     - recognizer
     - key_binder
     - speller
+    - lua_processor@*punct_after_digit
     - punctuator
     - lua_processor@*fuma_selector
     - selector
